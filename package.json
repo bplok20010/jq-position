@@ -1,0 +1,57 @@
+{
+	"name": "jq-position",
+	"version": "1.0.0",
+	"description": "",
+	"main": "cjs/index.js",
+	"module": "esm/index.js",
+	"types": "lib/index.d.ts",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"demo": "packez server ./examples/src/index.ts -d dist -w -c",
+		"start": "tsc -w",
+		"tsc": "tsc",
+		"cjs": "transform-es src -d cjs -c -t cjs",
+		"esm": "transform-es src -d esm -c -t esm",
+		"build": "run-s tsc cjs esm docs",
+		"docs": "packez build ./examples/src/index.ts -d docs -c"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/bplok20010/jq-position.git"
+	},
+	"keywords": [
+		"position"
+	],
+	"files": [
+		"cjs",
+		"esm",
+		"lib",
+		"*.md"
+	],
+	"author": "nobo.zhou@foxmail.com",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/bplok20010/jq-position/issues"
+	},
+	"homepage": "https://github.com/bplok20010/jq-position#readme",
+	"dependencies": {
+		"dom-helpers": "^5.1.4",
+		"dom-helpers-extra": "^0.2.0"
+	},
+	"devDependencies": {
+		"babel-plugin-search-and-replace": "^1.0.1",
+		"jquery": "^3.5.1",
+		"npm-run-all": "^4.1.5",
+		"packez": "^4.1.2",
+		"transform-es": "^5.0.3"
+	},
+	"browserslist": [
+		">=0.25%",
+		"not dead",
+		"not op_mini all",
+		"not Android 4.4.3-4.4.4",
+		"not ios_saf < 10",
+		"not Chrome < 50",
+		"firefox ESR"
+	]
+}
