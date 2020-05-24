@@ -35,11 +35,11 @@ export interface Feedback {
 	important: "vertical" | "horizontal";
 }
 
-export interface Options {
+export interface PositionOptions {
 	my?: string;
 	at?: string;
 	of?: HTMLElement | MouseEvent | [number, number];
-	collision?: string;
+	collision?: "flip" | "fit" | "flipfit" | "none";
 	using?: (pos: { left?: number; top?: number }, feedback: Feedback) => void;
 	within?: Element | Window;
 }
@@ -331,7 +331,7 @@ var positionCalc = {
 	},
 };
 
-function setPosition($el: Adapter, options: Options) {
+function setPosition($el: Adapter, options: PositionOptions) {
 	// Make a copy, we don't want to modify arguments
 	options = $.extend({}, options);
 
@@ -515,6 +515,6 @@ function setPosition($el: Adapter, options: Options) {
  * @param {selector,string,array<dom>}
  * @param {object}
  */
-export default function (dom: HTMLElement, options: Options) {
+export default function (dom: HTMLElement, options: PositionOptions) {
 	return setPosition($(dom), options);
 }
