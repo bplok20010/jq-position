@@ -482,9 +482,12 @@ function setPosition($el: Adapter, options: PositionOptions) {
 
 		if (options.using) {
 			var newAt = [options.at![0], options.at![1]];
+			var newMy = [options.my![0], options.my![1]];
 			// Position deflection check
 			newAt[0] = position.flipLeft ? (newAt[0] === "left" ? "right" : "left") : newAt[0];
 			newAt[1] = position.flipTop ? (newAt[1] === "top" ? "bottom" : "top") : newAt[1];
+			newMy[0] = position.flipLeft ? (newMy[0] === "left" ? "right" : "left") : newMy[0];
+			newMy[1] = position.flipTop ? (newMy[1] === "top" ? "bottom" : "top") : newMy[1];
 			// Adds feedback as second argument to using callback, if present
 			using = function (props) {
 				var left = targetOffset.left - position.left,
@@ -509,8 +512,8 @@ function setPosition($el: Adapter, options: PositionOptions) {
 						horizontal: right < 0 ? "left" : left > 0 ? "right" : "center",
 						vertical: bottom < 0 ? "top" : top > 0 ? "bottom" : "middle",
 						important: "vertical",
-						my: options.my,
-						at: options.at,
+						at: newAt,
+						my: newMy,
 					};
 				if (targetWidth < elemWidth && abs(left + right) < targetWidth) {
 					feedback.horizontal = "center";
