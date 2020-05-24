@@ -33,14 +33,18 @@ export interface Feedback {
 	horizontal: "left" | "right" | "center";
 	vertical: "top" | "bottom" | "middle";
 	important: "vertical" | "horizontal";
+	at: ["left" | "right" | "center", "top" | "bottom" | "center"];
+	my: ["left" | "right" | "center", "top" | "bottom" | "center"];
 }
+
+type Collision = "flip" | "fit" | "flipfit" | "none";
 
 export interface PositionOptions {
 	my?: string;
 	at?: string;
 	of?: HTMLElement | MouseEvent | [number, number];
-	collision?: "flip" | "fit" | "flipfit" | "none";
-	using?: (pos: { left?: number; top?: number }, feedback: Feedback) => void;
+	collision?: Collision | Collision[];
+	using?: (pos: { left: number; top: number }, feedback: Feedback) => void;
 	within?: Element | Window;
 }
 
@@ -260,6 +264,8 @@ var positionCalc = {
 					withinOffset;
 				if (newOverRight < 0 || newOverRight < abs(overLeft)) {
 					position.left += myOffset + atOffset + offset;
+					// position deflection
+					position.flipLeft = true;
 				}
 			} else if (overRight > 0) {
 				newOverLeft =
@@ -271,6 +277,8 @@ var positionCalc = {
 					offsetLeft;
 				if (newOverLeft > 0 || abs(newOverLeft) < overRight) {
 					position.left += myOffset + atOffset + offset;
+					// position deflection
+					position.flipLeft = true;
 				}
 			}
 		},
@@ -304,6 +312,8 @@ var positionCalc = {
 					withinOffset;
 				if (newOverBottom < 0 || newOverBottom < abs(overTop)) {
 					position.top += myOffset + atOffset + offset;
+					// position deflection
+					position.flipTop = true;
 				}
 			} else if (overBottom > 0) {
 				newOverTop =
@@ -315,6 +325,8 @@ var positionCalc = {
 					offsetTop;
 				if (newOverTop > 0 || abs(newOverTop) < overBottom) {
 					position.top += myOffset + atOffset + offset;
+					// position deflection
+					position.flipTop = true;
 				}
 			}
 		},
@@ -344,7 +356,9 @@ function setPosition($el: Adapter, options: PositionOptions) {
 		target = $(options.of),
 		within = utils.getWithinInfo(options.within),
 		scrollInfo = utils.getScrollInfo(within),
-		collision = (options.collision || "flip").split(" "),
+		collision = Array.isArray(options.collision)
+			? options.collision
+			: (options.collision || "flip").split(" "),
 		offsets: {
 			my?: string;
 			at?: string;
@@ -467,6 +481,10 @@ function setPosition($el: Adapter, options: PositionOptions) {
 		});
 
 		if (options.using) {
+			var newAt = [options.at![0], options.at![1]];
+			// Position deflection check
+			newAt[0] = position.flipLeft ? (newAt[0] === "left" ? "right" : "left") : newAt[0];
+			newAt[1] = position.flipTop ? (newAt[1] === "top" ? "bottom" : "top") : newAt[1];
 			// Adds feedback as second argument to using callback, if present
 			using = function (props) {
 				var left = targetOffset.left - position.left,
@@ -491,6 +509,8 @@ function setPosition($el: Adapter, options: PositionOptions) {
 						horizontal: right < 0 ? "left" : left > 0 ? "right" : "center",
 						vertical: bottom < 0 ? "top" : top > 0 ? "bottom" : "middle",
 						important: "vertical",
+						my: options.my,
+						at: options.at,
 					};
 				if (targetWidth < elemWidth && abs(left + right) < targetWidth) {
 					feedback.horizontal = "center";
@@ -515,6 +535,26 @@ function setPosition($el: Adapter, options: PositionOptions) {
  * @param {selector,string,array<dom>}
  * @param {object}
  */
-export default function (dom: HTMLElement, options: PositionOptions) {
+export default function position(dom: HTMLElement, options: PositionOptions) {
 	return setPosition($(dom), options);
+}
+
+export function getPosition(
+	dom: HTMLElement,
+	options: PositionOptions
+): [{ left: number; top: number }, Feedback] {
+	let pos: {
+			left: number;
+			top: number;
+		},
+		feedback: Feedback;
+	position(dom, {
+		...options,
+		using(p, f) {
+			pos = p;
+			feedback = f;
+		},
+	});
+	//@ts-ignore
+	return [pos, feedback];
 }
